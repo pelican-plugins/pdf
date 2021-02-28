@@ -8,6 +8,7 @@ The pdf plugin generates PDF files from reStructuredText and Markdown sources.
 from itertools import chain
 import logging
 import os
+import re
 
 from pelican import signals
 from pelican.generators import Generator
@@ -54,6 +55,12 @@ class PdfGenerator(Generator):
         if ext == ".rst":
             with open(obj.source_path, encoding="utf-8") as f:
                 text = f.read()
+
+                hrefs = self._get_intrasite_link_regex()
+                text = hrefs.sub(
+                    lambda m: obj._link_replacer(obj.get_siteurl(), m), text
+                )
+
             header = ""
         elif ext[1:] in mdreader.file_extensions and mdreader.enabled:
             text, meta = mdreader.read(obj.source_path)
@@ -84,7 +91,17 @@ class PdfGenerator(Generator):
             return
 
         logger.info(" [ok] writing %s" % output_pdf)
+
         self.pdfcreator.createPdf(text=(header + text), output=output_pdf)
+
+    def _get_intrasite_link_regex(self):
+        intrasite_link_regex = self.settings["INTRASITE_LINK_REGEX"]
+        regex = r"""
+                (?P<markup>)(?P<quote>)(?P<path>(\:?){}(?P<value>.*?)(?=[>\n]))
+                """.format(
+            intrasite_link_regex
+        )
+        return re.compile(regex, re.X)
 
     def generate_context(self):
         pass
