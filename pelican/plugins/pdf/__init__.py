@@ -1,1 +1,1 @@
-from .pdf import *
+from .pdf import *  # NOQA
