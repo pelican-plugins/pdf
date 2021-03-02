@@ -1,5 +1,5 @@
 PDF Generator: A Plugin for Pelican
-====================================================
+===================================
 
 [![Build Status](https://img.shields.io/github/workflow/status/pelican-plugins/pdf/build)](https://github.com/pelican-plugins/pdf/actions)
 [![PyPI Version](https://img.shields.io/pypi/v/pelican-pdf)](https://pypi.org/project/pelican-pdf/)
@@ -18,26 +18,23 @@ This plugin can be installed via:
 Usage
 -----
 
-To customize the PDF output, you can use the following settings in your
-Pelican configuration file::
+To customize the PDF output, you can use the following settings in your Pelican configuration file:
 
 	PDF_STYLE = ''
 	PDF_STYLE_PATH = ''
 
-`PDF_STYLE_PATH` defines a new path where *rst2pdf* will look for style sheets, while ``PDF_STYLE`` specifies the style you want to use.
+`PDF_STYLE_PATH` defines a new path where *rst2pdf* will look for style sheets, while `PDF_STYLE` specifies the style you want to use.
 For a description of the available styles, please read the [rst2pdf documentation](http://rst2pdf.ralsina.me/handbook.html#styles).
 
 Known Issues
 ------------
 
-Relative links in the form of `|filename|images/test.png` are not yet handledby the PDF generator.
+Relative links in the form of `|filename|images/test.png` are not yet handled by the PDF generator.
 
 Contributors
 ------------
 
-Primary Author and earlier Contributor
-
-- Kyle Mahan, Renato Cunha, dpetzel, Justin Mayer, Lucas Cimon
+Contributors include: Kyle Mahan, Renato Cunha, dpetzel, Justin Mayer, and Lucas Cimon
 
 Contributing
 ------------
