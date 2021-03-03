@@ -5,6 +5,7 @@ PDF Generator
 The pdf plugin generates PDF files from reStructuredText and Markdown sources.
 """
 
+from itertools import chain
 import logging
 import os
 
@@ -99,11 +100,10 @@ class PdfGenerator(Generator):
             except OSError:
                 logger.error("Couldn't create the pdf output folder in " + pdf_path)
 
-        for article in self.context["articles"]:
-            self._create_pdf(article, pdf_path)
-
-        for page in self.context["pages"]:
-            self._create_pdf(page, pdf_path)
+        for obj in chain(self.context["articles"], self.context["pages"]):
+            self._create_pdf(obj, pdf_path)
+            for obj_trans in obj.translations:
+                self._create_pdf(obj_trans, pdf_path)
 
 
 def get_generators(generators):
