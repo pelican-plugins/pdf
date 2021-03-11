@@ -52,11 +52,13 @@ class PdfGenerator(Generator):
         output_pdf = os.path.join(output_path, filename)
         mdreader = MarkdownReader(self.settings)
         _, ext = os.path.splitext(obj.source_path)
+
+        hrefs = self._get_intrasite_link_regex()
+
         if ext == ".rst":
             with open(obj.source_path, encoding="utf-8") as f:
                 text = f.read()
 
-                hrefs = self._get_intrasite_link_regex()
                 text = hrefs.sub(
                     lambda m: obj._link_replacer(obj.get_siteurl(), m), text
                 )
@@ -80,6 +82,8 @@ class PdfGenerator(Generator):
             header += "\n".join([":{}: {}".format(k, meta[k]) for k in meta])
             header += "\n\n.. raw:: html\n\n\t"
             text = text.replace("\n", "\n\t")
+
+            text = hrefs.sub(lambda m: obj._link_replacer(obj.get_siteurl(), m), text)
 
             # rst2pdf casts the text to str and will break if it finds
             # non-escaped characters. Here we nicely escape them to XML/HTML
