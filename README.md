@@ -20,8 +20,8 @@ Usage
 
 To customize the PDF output, you can use the following settings in your Pelican configuration file:
 
-	PDF_STYLE = ''
-	PDF_STYLE_PATH = ''
+	PDF_STYLE = ""
+	PDF_STYLE_PATH = ""
 
 `PDF_STYLE_PATH` defines a new path where *rst2pdf* will look for style sheets, while `PDF_STYLE` specifies the style you want to use.
 For a description of the available styles, please read the [rst2pdf documentation](http://rst2pdf.ralsina.me/handbook.html#styles).
@@ -29,12 +29,12 @@ For a description of the available styles, please read the [rst2pdf documentatio
 Known Issues
 ------------
 
-Relative links in the form of `|filename|images/test.png` are not yet handled by the PDF generator.
+Intra-site link syntax in the form of `{filename}images/test.png` is not yet handled by the PDF generator.
 
 Contributors
 ------------
 
-Contributors include: Kyle Mahan, Renato Cunha, dpetzel, Justin Mayer, and Lucas Cimon
+Contributors include: Dominik Wombacher, Justin Mayer, Kyle Mahan, Renato Cunha, dpetzel, and Lucas Cimon
 
 Contributing
 ------------
@@ -49,4 +49,4 @@ To start contributing to this plugin, review the [Contributing to Pelican][] doc
 License
 -------
 
-This project is licensed under the AGPL-3.0 license.
+This project is licensed under the AGPL 3.0 license.
