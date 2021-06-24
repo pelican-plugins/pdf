@@ -53,15 +53,9 @@ class PdfGenerator(Generator):
         mdreader = MarkdownReader(self.settings)
         _, ext = os.path.splitext(obj.source_path)
 
-        hrefs = self._get_intrasite_link_regex()
-
         if ext == ".rst":
             with open(obj.source_path, encoding="utf-8") as f:
                 text = f.read()
-
-                text = hrefs.sub(
-                    lambda m: obj._link_replacer(obj.get_siteurl(), m), text
-                )
 
             header = ""
         elif ext[1:] in mdreader.file_extensions and mdreader.enabled:
@@ -83,8 +77,6 @@ class PdfGenerator(Generator):
             header += "\n\n.. raw:: html\n\n\t"
             text = text.replace("\n", "\n\t")
 
-            text = hrefs.sub(lambda m: obj._link_replacer(obj.get_siteurl(), m), text)
-
             # rst2pdf casts the text to str and will break if it finds
             # non-escaped characters. Here we nicely escape them to XML/HTML
             # entities before proceeding
@@ -93,6 +85,10 @@ class PdfGenerator(Generator):
             # We don't support this format
             logger.warn("Ignoring unsupported file " + obj.source_path)
             return
+
+        # Find intra-site links and replace placeholder with actual path / url
+        hrefs = self._get_intrasite_link_regex()
+        text = hrefs.sub(lambda m: obj._link_replacer(obj.get_siteurl(), m), text)
 
         logger.info(" [ok] writing %s" % output_pdf)
 
