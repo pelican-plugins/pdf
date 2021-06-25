@@ -1,18 +1,10 @@
-Title: My super title
+Title: My super title - intra-site link target
 Date: 2010-12-03 10:20
 Modified: 2010-12-05 19:30
 Category: Python
 Tags: pelican, publishing
-Slug: my-super-post-md
+Slug: my-super-post-md-link
 Authors: Alexis Metaireau, Conan Doyle
 Summary: Short version for index and feeds
 
 This is the content of my super blog post.
-
-Intra-Site Links:
-
-[a link relative to the current file]({filename}testfile_link.md)
-
-[1]: {filename}testfile_link.md
-
-[link text itself]: {filename}testfile_link.md

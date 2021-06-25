@@ -13,16 +13,8 @@ This is the content of my super blog post.
 
 Intra-Site Links:
 
-.. _@testlink: {filename}../article2.md
+.. _@testlink: {filename}testfile_link.rst
 
-`a link relative to the content root <{filename}/article2.md>`_
+`a link relative to the file <{filename}testfile_link.rst>`_
 
-`a link relative to the content root <{filename}/article2.md>`_
-
-.. _@wombelix: {filename}../article2.md
-
-.. _@wombelix: {filename}../article2.md
-
-`a link relative to the content root <{filename}/article2.md>`_
-
-`a link relative to the content root <{filename}/article2.md>`_
+`a second link relative to the file <{filename}testfile_link.rst>`_
