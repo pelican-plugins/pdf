@@ -10,3 +10,19 @@ My super title
 :summary: Short version for index and feeds
 
 This is the content of my super blog post.
+
+Intra-Site Links:
+
+.. _@testlink: {filename}../article2.md
+
+`a link relative to the content root <{filename}/article2.md>`_
+
+`a link relative to the content root <{filename}/article2.md>`_
+
+.. _@wombelix: {filename}../article2.md
+
+.. _@wombelix: {filename}../article2.md
+
+`a link relative to the content root <{filename}/article2.md>`_
+
+`a link relative to the content root <{filename}/article2.md>`_
