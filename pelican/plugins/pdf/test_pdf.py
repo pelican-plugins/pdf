@@ -29,11 +29,9 @@ class TestPdfGeneration(unittest.TestCase):
         pelican = Pelican(settings=self.settings)
 
         pelican.run()
-        pass
 
     def tearDown(self):
         rmtree(self.temp_path)
-        pass
 
     def test_existence(self):
         assert os.path.exists(
