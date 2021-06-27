@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pelican-pdf"
-version = "1.0.0"
+version = "1.0.1"
 description = "PDF Generator is a Pelican plugin that exports articles and pages as PDF files during site generation"
 authors = ["Pelican Dev Team <authors@getpelican.com>"]
 license = "AGPL-3.0"
