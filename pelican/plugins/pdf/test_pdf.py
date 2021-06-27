@@ -1,5 +1,4 @@
 import locale
-import logging
 import os
 from shutil import rmtree
 from tempfile import mkdtemp
@@ -29,19 +28,10 @@ class TestPdfGeneration(unittest.TestCase):
         self.settings = read_settings(override=settings)
         pelican = Pelican(settings=self.settings)
 
-        try:
-            pelican.run()
-        except ValueError:
-            logging.warn(
-                "Relative links in the form of "
-                + "|filename|images/test.png are not yet handled by "
-                + " the pdf generator"
-            )
-            pass
+        pelican.run()
 
     def tearDown(self):
         rmtree(self.temp_path)
-        pass
 
     def test_existence(self):
         assert os.path.exists(
