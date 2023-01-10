@@ -24,7 +24,7 @@ To customize the PDF output, you can use the following settings in your Pelican 
 	PDF_STYLE_PATH = ""
 
 `PDF_STYLE_PATH` defines a new path where *rst2pdf* will look for style sheets, while `PDF_STYLE` specifies the style you want to use.
-For a description of the available styles, please read the [rst2pdf documentation](http://rst2pdf.ralsina.me/handbook.html#styles).
+For a description of the available styles, please read the [rst2pdf documentation](https://rst2pdf.org/static/manual.html#styles).
 
 Contributors
 ------------
