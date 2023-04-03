@@ -1,7 +1,7 @@
 PDF Generator: A Plugin for Pelican
 ===================================
 
-[![Build Status](https://img.shields.io/github/workflow/status/pelican-plugins/pdf/build)](https://github.com/pelican-plugins/pdf/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/pelican-plugins/pdf/main.yml?branch=main)](https://github.com/pelican-plugins/pdf/actions)
 [![PyPI Version](https://img.shields.io/pypi/v/pelican-pdf)](https://pypi.org/project/pelican-pdf/)
 ![License](https://img.shields.io/pypi/l/pelican-pdf?color=blue)
 
