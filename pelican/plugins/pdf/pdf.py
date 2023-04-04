@@ -58,6 +58,11 @@ class PdfGenerator(Generator):
                 text = f.read()
 
             header = ""
+
+            # Use full path for images to avoid rst2pdf 'Missing image file' error
+            # Match reStructuredText Syntax: ..image:: {static}/images/picture.jpg
+            text = re.sub(r"(\.\. image:: )({.*})", r"\1" + self.path, text)
+
         elif ext[1:] in mdreader.file_extensions and mdreader.enabled:
             text, meta = mdreader.read(obj.source_path)
             header = ""
@@ -81,6 +86,11 @@ class PdfGenerator(Generator):
             # non-escaped characters. Here we nicely escape them to XML/HTML
             # entities before proceeding
             text = text.encode("ascii", "xmlcharrefreplace").decode()
+
+            # Use full path for images to avoid rst2pdf 'Missing image file' error
+            # Match Markdown Syntax: ![alt]({static}/images/picture.jpg)
+            text = re.sub(r"(!\[.*\]\()({.*})", r"\1" + self.path, text)
+
         else:
             # We don't support this format
             logger.warn("Ignoring unsupported file " + obj.source_path)
