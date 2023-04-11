@@ -14,10 +14,8 @@ from pelican import signals
 from pelican.generators import Generator
 from pelican.readers import MarkdownReader
 
-"""
-Workaround until fixed xhtml2pdf import is included in rst2pdf Release
-https://github.com/rst2pdf/rst2pdf/commit/6ad348cf5a13ae1b884a86574e48ed1e5f8ca135
-"""
+# Workaround until fixed xhtml2pdf import is included in rst2pdf Release
+# https://github.com/rst2pdf/rst2pdf/commit/6ad348cf5a13ae1b884a86574e48ed1e5f8ca135
 import xhtml2pdf.default  # NOQA isort:skip
 from rst2pdf.createpdf import RstToPdf  # NOQA isort:skip
 
@@ -78,7 +76,7 @@ class PdfGenerator(Generator):
                 if k not in self.supported_md_fields:
                     del meta[k]
 
-            header += "\n".join([":{}: {}".format(k, meta[k]) for k in meta])
+            header += "\n".join([f":{k}: {meta[k]}" for k in meta])
             header += "\n\n.. raw:: html\n\n\t"
             text = text.replace("\n", "\n\t")
 
