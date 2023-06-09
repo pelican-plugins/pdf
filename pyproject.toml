@@ -31,7 +31,7 @@ classifiers = [
 python = ">=3.8.1,<4.0"
 pelican = ">=4.5"
 markdown = {version = ">=3.2.2", optional = true}
-rst2pdf = ">=0.98"
+rst2pdf = ">=0.99"
 xhtml2pdf = ">=0.2.5"
 
 [tool.poetry.dev-dependencies]
