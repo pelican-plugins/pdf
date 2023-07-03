@@ -10,15 +10,11 @@ import logging
 import os
 import re
 
+from rst2pdf.createpdf import RstToPdf
+
 from pelican import signals
 from pelican.generators import Generator
 from pelican.readers import MarkdownReader
-
-# Workaround until fixed xhtml2pdf import is included in rst2pdf Release
-# https://github.com/rst2pdf/rst2pdf/commit/6ad348cf5a13ae1b884a86574e48ed1e5f8ca135
-import xhtml2pdf.default  # NOQA isort:skip
-from rst2pdf.createpdf import RstToPdf  # NOQA isort:skip
-
 
 logger = logging.getLogger(__name__)
 
