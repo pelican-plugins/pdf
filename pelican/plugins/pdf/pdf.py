@@ -9,6 +9,7 @@ from itertools import chain
 import logging
 import os
 import re
+import time
 
 from rst2pdf.createpdf import RstToPdf
 
@@ -98,6 +99,9 @@ class PdfGenerator(Generator):
 
         self.pdfcreator.createPdf(text=(header + text), output=output_pdf)
 
+        if obj.date is not None:
+            self._set_file_utime(output_pdf, obj.date)
+
     def _get_intrasite_link_regex(self):
         intrasite_link_regex = self.settings["INTRASITE_LINK_REGEX"]
         regex = r"""
@@ -106,6 +110,11 @@ class PdfGenerator(Generator):
             intrasite_link_regex
         )
         return re.compile(regex, re.X)
+
+    def _set_file_utime(self, path, datetime):
+        """Set modified time (mtime) of specified file."""
+        mtime = time.mktime(datetime.timetuple())
+        os.utime(path, (mtime, mtime))
 
     def generate_context(self):
         pass
