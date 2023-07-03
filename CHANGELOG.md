@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+1.0.3 - 2023-07-03
+------------------
+
+* Only generate PDFs when corresponding articles have changed ([#14](https://github.com/pelican-plugins/pdf/pull/14))
+* Remove now-unnecessary xhtml2pdf / rst2pdf workaround ([#13](https://github.com/pelican-plugins/pdf/pull/13))
+
 1.0.2 - 2023-04-04
 ------------------
 
