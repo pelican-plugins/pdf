@@ -1,8 +1,6 @@
-"""
-PDF Generator
--------
+"""PDF Generator plugin for Pelican.
 
-The pdf plugin generates PDF files from reStructuredText and Markdown sources.
+This plugin generates PDF files from reStructuredText and Markdown source files.
 """
 
 from itertools import chain
@@ -21,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class PdfGenerator(Generator):
-    "Generate PDFs on the output dir, for all articles and pages"
+    """Generate PDFs on the output dir, for all articles and pages."""
 
     supported_md_fields = ["date"]
 
@@ -33,10 +31,7 @@ class PdfGenerator(Generator):
         else:
             pdf_style_path = []
 
-        if "PDF_STYLE" in self.settings:
-            pdf_style = [self.settings["PDF_STYLE"]]
-        else:
-            pdf_style = []
+        pdf_style = [self.settings["PDF_STYLE"]] if "PDF_STYLE" in self.settings else []
 
         self.pdfcreator = RstToPdf(
             breakside=0, stylesheets=pdf_style, style_path=pdf_style_path, raw_html=True
@@ -95,7 +90,7 @@ class PdfGenerator(Generator):
         hrefs = self._get_intrasite_link_regex()
         text = hrefs.sub(lambda m: obj._link_replacer(obj.get_siteurl(), m), text)
 
-        logger.info(" [ok] writing %s" % output_pdf)
+        logger.info(f" [ok] writing {output_pdf}")
 
         self.pdfcreator.createPdf(text=(header + text), output=output_pdf)
 
@@ -104,11 +99,9 @@ class PdfGenerator(Generator):
 
     def _get_intrasite_link_regex(self):
         intrasite_link_regex = self.settings["INTRASITE_LINK_REGEX"]
-        regex = r"""
-                (?P<markup>)(?P<quote>)(?P<path>(\:?){}(?P<value>.*?)(?=[>\n]))
-                """.format(
-            intrasite_link_regex
-        )
+        regex = rf"""
+                (?P<markup>)(?P<quote>)(?P<path>(\:?){intrasite_link_regex}(?P<value>.*?)(?=[>\n]))
+                """
         return re.compile(regex, re.X)
 
     def _set_file_utime(self, path, datetime):
@@ -128,7 +121,7 @@ class PdfGenerator(Generator):
             try:
                 os.mkdir(pdf_path)
             except OSError:
-                logger.error("Couldn't create the pdf output folder in " + pdf_path)
+                logger.exception("Couldn't create the pdf output folder in " + pdf_path)
 
         for obj in chain(self.context["articles"], self.context["pages"]):
             self._create_pdf(obj, pdf_path)

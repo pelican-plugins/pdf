@@ -4,16 +4,17 @@ from shutil import rmtree
 from tempfile import mkdtemp
 import unittest
 
+import pdf
 from pelican import Pelican
 from pelican.readers import MarkdownReader
 from pelican.settings import read_settings
-
-import pdf
 
 CUR_DIR = os.path.dirname(__file__)
 
 
 class TestPdfGeneration(unittest.TestCase):
+    """Test class for PDF generation."""
+
     def setUp(self, override=None):
         self.temp_path = mkdtemp(prefix="pelicantests.")
         settings = {
