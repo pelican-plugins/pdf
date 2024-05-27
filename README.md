@@ -3,6 +3,7 @@ PDF Generator: A Plugin for Pelican
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/pelican-plugins/pdf/main.yml?branch=main)](https://github.com/pelican-plugins/pdf/actions)
 [![PyPI Version](https://img.shields.io/pypi/v/pelican-pdf)](https://pypi.org/project/pelican-pdf/)
+[![Downloads](https://img.shields.io/pypi/dm/pelican-pdf)](https://pypi.org/project/pelican-pdf/)
 ![License](https://img.shields.io/pypi/l/pelican-pdf?color=blue)
 
 The PDF Generator plugin automatically exports articles and pages as PDF files as part of the site generation process.
