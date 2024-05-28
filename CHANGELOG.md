@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+1.0.4 - 2024-05-28
+------------------
+
+- Test PDF generation via GitHub CI action (#18)
+- Pin `xhtml2pdf` until import from `rst2pdf` is fixed (#19)
+- Replace Poetry with PDM
+- Replace various code style linters with Ruff
+
+Contributed by [Justin Mayer](https://github.com/justinmayer) via [PR #19](https://github.com/pelican-plugins/pdf/pull/19/)
+
+
 1.0.3 - 2023-07-03
 ------------------
 
