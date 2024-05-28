@@ -32,6 +32,9 @@ jobs:
       - name: Run tests
         run: pdm run invoke tests
 
+      - name: Test generation
+        run: pdm run pelican --fatal errors pelican/plugins/pdf/test_data
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
