@@ -1,6 +1,6 @@
 [project]
 name = "pelican-pdf"
-version = "1.0.4"
+version = "1.0.5"
 description = "PDF Generator is a Pelican plugin that exports articles and pages as PDF files during site generation"
 authors = [{name = "Justin Mayer", email = "entroP@gmail.com"}, {name = "Dominik Wombacher", email = "dominik@wombacher.cc"}]
 license = {text = "AGPL-3.0"}
