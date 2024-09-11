@@ -28,7 +28,7 @@ requires-python = ">=3.8.1,<4.0"
 dependencies = [
     "pelican>=4.5",
     "rst2pdf>=0.99",
-    "xhtml2pdf>=0.2.5,<0.2.12",
+    "xhtml2pdf>=0.2.5",
 ]
 
 [project.urls]
