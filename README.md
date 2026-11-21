@@ -25,9 +25,20 @@ To customize the PDF output, you can use the following settings in your Pelican 
 
 	PDF_STYLE = ""
 	PDF_STYLE_PATH = ""
+	PDF_STRIP_ELEMENTS_WITH_CLASSES = []
 
 `PDF_STYLE_PATH` defines a new path where *rst2pdf* will look for style sheets, while `PDF_STYLE` specifies the style you want to use.
 For a description of the available styles, please read the [rst2pdf documentation](https://rst2pdf.org/manual.html#creating-stylesheets).
+
+`PDF_STRIP_ELEMENTS_WITH_CLASSES` removes all elements with one of the listed classes from the PDF.
+For example, with `PDF_STRIP_ELEMENTS_WITH_CLASSES = ["no-pdf"]`, the table of contents and the paragraph below are not part of the PDF:
+
+	.. contents::
+	   :class: no-pdf
+
+	.. class:: no-pdf
+
+	This paragraph is not part of the PDF.
 
 Contributors
 ------------

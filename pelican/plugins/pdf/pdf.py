@@ -33,8 +33,14 @@ class PdfGenerator(Generator):
 
         pdf_style = [self.settings["PDF_STYLE"]] if "PDF_STYLE" in self.settings else []
 
+        strip_classes = self.settings.get("PDF_STRIP_ELEMENTS_WITH_CLASSES", [])
+
         self.pdfcreator = RstToPdf(
-            breakside=0, stylesheets=pdf_style, style_path=pdf_style_path, raw_html=True
+            breakside=0,
+            stylesheets=pdf_style,
+            style_path=pdf_style_path,
+            raw_html=True,
+            strip_elements_with_classes=strip_classes,
         )
 
     def _create_pdf(self, obj, output_path):
