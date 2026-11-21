@@ -3,6 +3,11 @@ import os
 from shutil import rmtree
 from tempfile import mkdtemp
 import unittest
+from unittest import mock
+
+import docutils.core
+import docutils.nodes
+from rst2pdf.createpdf import RstToPdf
 
 import pdf
 from pelican import Pelican
@@ -81,3 +86,93 @@ class TestStripElementsWithClasses(unittest.TestCase):
                 assert (
                     generator.pdfcreator.strip_elements_with_classes == case["expected"]
                 )
+
+
+class TestStripMetadata(unittest.TestCase):
+    """Test class for the PDF_STRIP_METADATA setting."""
+
+    def test_strip_metadata(self):
+        temp_path = mkdtemp(prefix="pelicantests.")
+        self.addCleanup(rmtree, temp_path)
+        settings = {
+            "PATH": os.path.join(CUR_DIR, "test_data"),
+            "OUTPUT_PATH": temp_path,
+            "PLUGINS": [pdf],
+            "LOCALE": locale.normalize("en_US"),
+            "PDF_STRIP_METADATA": True,
+        }
+        pelican = Pelican(settings=read_settings(override=settings))
+        create_pdf = RstToPdf.createPdf
+
+        # Record the calls, but still run the real createPdf
+        with mock.patch.object(
+            RstToPdf, "createPdf", autospec=True, side_effect=create_pdf
+        ) as create_pdf_mock:
+            pelican.run()
+
+        assert create_pdf_mock.call_count > 0
+        for call in create_pdf_mock.call_args_list:
+            doctree = call.kwargs["doctree"]
+            assert doctree.next_node(docutils.nodes.docinfo) is None
+
+
+class TestParseDoctree(unittest.TestCase):
+    """Test class for _parse_doctree and its error handling."""
+
+    def test_parse_doctree(self):
+        cases = [
+            {
+                "name": "valid text",
+                "text": "Title\n=====\n\nText.\n",
+                "exception": None,
+                "expect_doctree": True,
+            },
+            {
+                "name": "invalid text",
+                "text": ".. unknown-directive::\n",
+                "exception": None,
+                "expect_doctree": False,
+            },
+            {
+                "name": "exception other than a docutils SystemMessage",
+                "text": "Text.\n",
+                "exception": ValueError("parse failed"),
+                "expect_doctree": False,
+            },
+        ]
+
+        generator = build_generator({"PDF_STRIP_ELEMENTS_WITH_CLASSES": ["no-pdf"]})
+
+        for case in cases:
+            with self.subTest(case["name"]):
+                if case["exception"] is None:
+                    doctree = generator._parse_doctree(case["text"])
+                else:
+                    with mock.patch.object(
+                        docutils.core, "publish_doctree", side_effect=case["exception"]
+                    ):
+                        doctree = generator._parse_doctree(case["text"])
+
+                if case["expect_doctree"]:
+                    # rst2pdf reads the classes to strip from the doctree settings
+                    assert doctree.settings.strip_elements_with_classes == ["no-pdf"]
+                else:
+                    assert doctree is None
+
+    def test_failed_parse_writes_no_pdf(self):
+        temp_path = mkdtemp(prefix="pelicantests.")
+        self.addCleanup(rmtree, temp_path)
+        settings = {
+            "PATH": os.path.join(CUR_DIR, "test_data"),
+            "OUTPUT_PATH": temp_path,
+            "PLUGINS": [pdf],
+            "LOCALE": locale.normalize("en_US"),
+            "PDF_STRIP_METADATA": True,
+        }
+        pelican = Pelican(settings=read_settings(override=settings))
+
+        # The test data is valid, so we let the parsing fail
+        with mock.patch.object(pdf.PdfGenerator, "_parse_doctree", return_value=None):
+            pelican.run()
+
+        assert os.listdir(os.path.join(temp_path, "pdf")) == []

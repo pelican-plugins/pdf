@@ -26,6 +26,7 @@ To customize the PDF output, you can use the following settings in your Pelican 
 	PDF_STYLE = ""
 	PDF_STYLE_PATH = ""
 	PDF_STRIP_ELEMENTS_WITH_CLASSES = []
+	PDF_STRIP_METADATA = False
 
 `PDF_STYLE_PATH` defines a new path where *rst2pdf* will look for style sheets, while `PDF_STYLE` specifies the style you want to use.
 For a description of the available styles, please read the [rst2pdf documentation](https://rst2pdf.org/manual.html#creating-stylesheets).
@@ -39,6 +40,9 @@ For example, with `PDF_STRIP_ELEMENTS_WITH_CLASSES = ["no-pdf"]`, the table of c
 	.. class:: no-pdf
 
 	This paragraph is not part of the PDF.
+
+`PDF_STRIP_METADATA` removes the metadata fields (`:date:`, `:slug:`, `:tags:` and so on) from the top of the PDF.
+It applies to reStructuredText and Markdown files.
 
 Contributors
 ------------

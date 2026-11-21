@@ -9,6 +9,8 @@ import os
 import re
 import time
 
+import docutils.core
+import docutils.nodes
 from rst2pdf.createpdf import RstToPdf
 
 from pelican import signals
@@ -96,12 +98,56 @@ class PdfGenerator(Generator):
         hrefs = self._get_intrasite_link_regex()
         text = hrefs.sub(lambda m: obj._link_replacer(obj.get_siteurl(), m), text)
 
-        logger.info(f" [ok] writing {output_pdf}")
+        strip_metadata = self.settings.get("PDF_STRIP_METADATA", False)
 
-        self.pdfcreator.createPdf(text=(header + text), output=output_pdf)
+        if strip_metadata:
+            # rst2pdf cannot remove metadata, so we parse the text ourselves
+            doctree = self._parse_doctree(header + text)
+            if doctree is None:
+                logger.error("Cannot generate PDF for " + obj.source_path)
+                return
+            self._remove_metadata(doctree)
+
+            logger.info(f" [ok] writing {output_pdf}")
+            self.pdfcreator.createPdf(doctree=doctree, output=output_pdf)
+        else:
+            logger.info(f" [ok] writing {output_pdf}")
+            self.pdfcreator.createPdf(text=(header + text), output=output_pdf)
 
         if obj.date is not None:
             self._set_file_utime(output_pdf, obj.date)
+
+    def _parse_doctree(self, text):
+        """Parse text into a doctree.
+
+        Returns None if the text cannot be parsed.
+        """
+        # Same overrides that rst2pdf uses when it parses the text itself.
+        # rst2pdf also sets language_code, but the plugin always uses the
+        # rst2pdf default en_US, which matches the docutils default.
+        settings_overrides = {
+            "strip_elements_with_classes": self.pdfcreator.strip_elements_with_classes,
+            "exit_status_level": 3,
+            "halt_level": 3,
+        }
+
+        # Like rst2pdf, log any error, so Pelican continues with the next file
+        try:
+            doctree = docutils.core.publish_doctree(
+                text, settings_overrides=settings_overrides
+            )
+        except Exception:
+            logger.exception("Error generating doctree")
+            return None
+
+        return doctree
+
+    def _remove_metadata(self, doctree):
+        """Remove the docinfo (metadata) node from the doctree."""
+        # findall() is a generator, so collect the nodes before removing them
+        docinfo_nodes = list(doctree.findall(docutils.nodes.docinfo))
+        for docinfo in docinfo_nodes:
+            docinfo.parent.remove(docinfo)
 
     def _get_intrasite_link_regex(self):
         intrasite_link_regex = self.settings["INTRASITE_LINK_REGEX"]
