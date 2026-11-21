@@ -98,6 +98,10 @@ class PdfGenerator(Generator):
         hrefs = self._get_intrasite_link_regex()
         text = hrefs.sub(lambda m: obj._link_replacer(obj.get_siteurl(), m), text)
 
+        # Added after the link replacement, which would change the |...| markup
+        updated_date = self._get_updated_date(obj)
+        text += self._build_updated_substitution(updated_date)
+
         strip_metadata = self.settings.get("PDF_STRIP_METADATA", False)
 
         if strip_metadata:
@@ -116,6 +120,28 @@ class PdfGenerator(Generator):
 
         if obj.date is not None:
             self._set_file_utime(output_pdf, obj.date)
+
+    def _get_updated_date(self, obj):
+        """Return the modified date of obj, else its date, else "".
+
+        The date is formatted with PDF_DATE_FORMAT, else with the
+        Pelican date format of obj.
+        """
+        updated = getattr(obj, "modified", None)
+        if updated is None:
+            updated = getattr(obj, "date", None)
+        if updated is None:
+            return ""
+
+        date_format = self.settings.get("PDF_DATE_FORMAT", obj.date_format)
+        return updated.strftime(date_format)
+
+    def _build_updated_substitution(self, updated_date):
+        """Return a reStructuredText substitution |pdf_updated| for updated_date."""
+        if updated_date == "":
+            # docutils rejects an empty replace, an escaped space renders as nothing
+            return "\n\n.. |pdf_updated| replace:: \\ \n"
+        return f"\n\n.. |pdf_updated| replace:: {updated_date}\n"
 
     def _parse_doctree(self, text):
         """Parse text into a doctree.

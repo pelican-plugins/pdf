@@ -1,7 +1,9 @@
+from datetime import datetime
 import locale
 import os
 from shutil import rmtree
 from tempfile import mkdtemp
+from types import SimpleNamespace
 import unittest
 from unittest import mock
 
@@ -116,6 +118,48 @@ class TestStripMetadata(unittest.TestCase):
             assert doctree.next_node(docutils.nodes.docinfo) is None
 
 
+class TestUpdatedDate(unittest.TestCase):
+    """Test class for _get_updated_date and PDF_DATE_FORMAT."""
+
+    def test_get_updated_date(self):
+        date = datetime(2026, 11, 8, 10, 20)
+        modified = datetime(2026, 11, 17, 18, 40)
+        cases = [
+            {
+                "name": "modified and date set",
+                "override": {"PDF_DATE_FORMAT": "%Y-%m-%d"},
+                "obj": SimpleNamespace(
+                    date=date, modified=modified, date_format="%d %B %Y"
+                ),
+                "expected": "2026-11-17",
+            },
+            {
+                "name": "only date set",
+                "override": {"PDF_DATE_FORMAT": "%Y-%m-%d"},
+                "obj": SimpleNamespace(date=date, date_format="%d %B %Y"),
+                "expected": "2026-11-08",
+            },
+            {
+                "name": "no date set",
+                "override": {"PDF_DATE_FORMAT": "%Y-%m-%d"},
+                "obj": SimpleNamespace(date_format="%d %B %Y"),
+                "expected": "",
+            },
+            {
+                "name": "PDF_DATE_FORMAT not set",
+                "override": {},
+                "obj": SimpleNamespace(date=date, date_format="%d %B %Y"),
+                "expected": "08 November 2026",
+            },
+        ]
+
+        for case in cases:
+            with self.subTest(case["name"]):
+                generator = build_generator(case["override"])
+
+                assert generator._get_updated_date(case["obj"]) == case["expected"]
+
+
 class TestParseDoctree(unittest.TestCase):
     """Test class for _parse_doctree and its error handling."""
 
@@ -176,3 +220,56 @@ class TestParseDoctree(unittest.TestCase):
             pelican.run()
 
         assert os.listdir(os.path.join(temp_path, "pdf")) == []
+
+
+class TestUpdatedSubstitution(unittest.TestCase):
+    """Test class for the |pdf_updated| substitution."""
+
+    def test_build_updated_substitution(self):
+        cases = [
+            {
+                "name": "date set",
+                "updated_date": "2010-10-04",
+                "expected": "\n\n.. |pdf_updated| replace:: 2010-10-04\n",
+            },
+            {
+                "name": "no date",
+                "updated_date": "",
+                "expected": "\n\n.. |pdf_updated| replace:: \\ \n",
+            },
+        ]
+
+        generator = build_generator({})
+
+        for case in cases:
+            with self.subTest(case["name"]):
+                result = generator._build_updated_substitution(case["updated_date"])
+
+                assert result == case["expected"]
+
+    def test_substitution_in_text(self):
+        temp_path = mkdtemp(prefix="pelicantests.")
+        self.addCleanup(rmtree, temp_path)
+        settings = {
+            "PATH": os.path.join(CUR_DIR, "test_data"),
+            "OUTPUT_PATH": temp_path,
+            "PLUGINS": [pdf],
+            "LOCALE": locale.normalize("en_US"),
+            "PDF_DATE_FORMAT": "%Y-%m-%d",
+        }
+        pelican = Pelican(settings=read_settings(override=settings))
+        create_pdf = RstToPdf.createPdf
+
+        # Record the calls, but still run the real createPdf
+        with mock.patch.object(
+            RstToPdf, "createPdf", autospec=True, side_effect=create_pdf
+        ) as create_pdf_mock:
+            pelican.run()
+
+        values = set()
+        for call in create_pdf_mock.call_args_list:
+            doctree = docutils.core.publish_doctree(call.kwargs["text"])
+            values.add(doctree.substitution_defs["pdf_updated"].astext())
+
+        # Modified dates of the rst and the md test files
+        assert values == {"2010-10-04", "2010-12-05"}
