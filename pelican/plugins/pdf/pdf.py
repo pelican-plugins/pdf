@@ -9,6 +9,8 @@ import os
 import re
 import time
 
+import docutils.core
+import docutils.nodes
 from rst2pdf.createpdf import RstToPdf
 
 from pelican import signals
@@ -33,8 +35,14 @@ class PdfGenerator(Generator):
 
         pdf_style = [self.settings["PDF_STYLE"]] if "PDF_STYLE" in self.settings else []
 
+        strip_classes = self.settings.get("PDF_STRIP_ELEMENTS_WITH_CLASSES", [])
+
         self.pdfcreator = RstToPdf(
-            breakside=0, stylesheets=pdf_style, style_path=pdf_style_path, raw_html=True
+            breakside=0,
+            stylesheets=pdf_style,
+            style_path=pdf_style_path,
+            raw_html=True,
+            strip_elements_with_classes=strip_classes,
         )
 
     def _create_pdf(self, obj, output_path):
@@ -90,12 +98,82 @@ class PdfGenerator(Generator):
         hrefs = self._get_intrasite_link_regex()
         text = hrefs.sub(lambda m: obj._link_replacer(obj.get_siteurl(), m), text)
 
-        logger.info(f" [ok] writing {output_pdf}")
+        # Added after the link replacement, which would change the |...| markup
+        updated_date = self._get_updated_date(obj)
+        text += self._build_updated_substitution(updated_date)
 
-        self.pdfcreator.createPdf(text=(header + text), output=output_pdf)
+        strip_metadata = self.settings.get("PDF_STRIP_METADATA", False)
+
+        if strip_metadata:
+            # rst2pdf cannot remove metadata, so we parse the text ourselves
+            doctree = self._parse_doctree(header + text)
+            if doctree is None:
+                logger.error("Cannot generate PDF for " + obj.source_path)
+                return
+            self._remove_metadata(doctree)
+
+            logger.info(f" [ok] writing {output_pdf}")
+            self.pdfcreator.createPdf(doctree=doctree, output=output_pdf)
+        else:
+            logger.info(f" [ok] writing {output_pdf}")
+            self.pdfcreator.createPdf(text=(header + text), output=output_pdf)
 
         if obj.date is not None:
             self._set_file_utime(output_pdf, obj.date)
+
+    def _get_updated_date(self, obj):
+        """Return the modified date of obj, else its date, else "".
+
+        The date is formatted with PDF_DATE_FORMAT, else with the
+        Pelican date format of obj.
+        """
+        updated = getattr(obj, "modified", None)
+        if updated is None:
+            updated = getattr(obj, "date", None)
+        if updated is None:
+            return ""
+
+        date_format = self.settings.get("PDF_DATE_FORMAT", obj.date_format)
+        return updated.strftime(date_format)
+
+    def _build_updated_substitution(self, updated_date):
+        """Return a reStructuredText substitution |pdf_updated| for updated_date."""
+        if updated_date == "":
+            # docutils rejects an empty replace, an escaped space renders as nothing
+            return "\n\n.. |pdf_updated| replace:: \\ \n"
+        return f"\n\n.. |pdf_updated| replace:: {updated_date}\n"
+
+    def _parse_doctree(self, text):
+        """Parse text into a doctree.
+
+        Returns None if the text cannot be parsed.
+        """
+        # Same overrides that rst2pdf uses when it parses the text itself.
+        # rst2pdf also sets language_code, but the plugin always uses the
+        # rst2pdf default en_US, which matches the docutils default.
+        settings_overrides = {
+            "strip_elements_with_classes": self.pdfcreator.strip_elements_with_classes,
+            "exit_status_level": 3,
+            "halt_level": 3,
+        }
+
+        # Like rst2pdf, log any error, so Pelican continues with the next file
+        try:
+            doctree = docutils.core.publish_doctree(
+                text, settings_overrides=settings_overrides
+            )
+        except Exception:
+            logger.exception("Error generating doctree")
+            return None
+
+        return doctree
+
+    def _remove_metadata(self, doctree):
+        """Remove the docinfo (metadata) node from the doctree."""
+        # findall() is a generator, so collect the nodes before removing them
+        docinfo_nodes = list(doctree.findall(docutils.nodes.docinfo))
+        for docinfo in docinfo_nodes:
+            docinfo.parent.remove(docinfo)
 
     def _get_intrasite_link_regex(self):
         intrasite_link_regex = self.settings["INTRASITE_LINK_REGEX"]
